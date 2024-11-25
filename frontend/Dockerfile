@@ -1,17 +1,21 @@
-# Use the latest official Node.js image as a base
-FROM node:latest
+# Use a smaller Node.js version (e.g., 18-slim) to reduce image size
+FROM node:18-slim as frontend
 
 # Set the working directory
 WORKDIR /app
 
-# Copy the application files
-COPY . .
+# Copy only the package files first to optimize cache usage
+COPY package.json package-lock.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm install --production
+
+# Copy the rest of the application files
+COPY . .
 
 # Expose the port the development server runs on
 EXPOSE 5173
 
-# Run the development server
+# Run the development server (use --host to allow external connections)
 CMD ["npm", "run", "dev", "--", "--host"]
+
